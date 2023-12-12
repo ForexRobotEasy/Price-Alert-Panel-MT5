@@ -1,0 +1,161 @@
+
+// Developer: Forex Robot Easy Team
+// Site: forexroboteasy.com
+
+#property copyright 'Forex Robot Easy Team'
+#property link    'forexroboteasy.com'
+
+// Define the input parameters
+input string Pattern1 = 'Doji';
+input string Pattern2 = 'Engulfing';
+input string Pattern3 = 'Hammer';
+input string Pattern4 = 'Shooting Star';
+
+// Define the function for detecting candlestick patterns
+bool DetectPattern(int pattern, int timeframe)
+{
+    bool result = false;
+    
+    // Get the number of bars on the chart
+    int totalBars = iBars(_Symbol, timeframe);
+    
+    // Loop through each bar on the chart
+    for (int i = totalBars - 1; i >= 0; i--)
+    {
+        // Get the open, high, low, and close prices of the current bar
+        double open = iOpen(_Symbol, timeframe, i);
+        double high = iHigh(_Symbol, timeframe, i);
+        double low = iLow(_Symbol, timeframe, i);
+        double close = iClose(_Symbol, timeframe, i);
+        
+        // Check for the specific candlestick pattern
+        if (pattern == 1 && IsDoji(open, high, low, close))
+        {
+            result = true;
+            break;
+        }
+        else if (pattern == 2 && IsEngulfing(open, high, low, close))
+        {
+            result = true;
+            break;
+        }
+        else if (pattern == 3 && IsHammer(open, high, low, close))
+        {
+            result = true;
+            break;
+        }
+        else if (pattern == 4 && IsShootingStar(open, high, low, close))
+        {
+            result = true;
+            break;
+        }
+    }
+    
+    return result;
+}
+
+// Define the function for checking if a candlestick is a Doji
+bool IsDoji(double open, double high, double low, double close)
+{
+    double bodySize = MathAbs(open - close);
+    double upperShadow = high - MathMax(open, close);
+    double lowerShadow = MathMin(open, close) - low;
+    
+    // Check if the candlestick is a Doji
+    if (bodySize < (high - low) * 0.1 && upperShadow > bodySize && lowerShadow > bodySize)
+        return true;
+    
+    return false;
+}
+
+// Define the function for checking if a candlestick is an Engulfing pattern
+bool IsEngulfing(double open, double high, double low, double close)
+{
+    double previousOpen = iOpen(_Symbol, _Period, 1);
+    double previousClose = iClose(_Symbol, _Period, 1);
+    
+    // Check if the current candlestick is bullish and the previous candlestick is bearish
+    if (close > open && previousClose > previousOpen && close > previousOpen && open < previousClose)
+        return true;
+    
+    // Check if the current candlestick is bearish and the previous candlestick is bullish
+    if (open > close && previousOpen > previousClose && open > previousClose && close < previousOpen)
+        return true;
+    
+    return false;
+}
+
+// Define the function for checking if a candlestick is a Hammer pattern
+bool IsHammer(double open, double high, double low, double close)
+{
+    double bodySize = MathAbs(open - close);
+    double upperShadow = high - MathMax(open, close);
+    double lowerShadow = MathMin(open, close) - low;
+    
+    // Check if the candlestick is a Hammer pattern
+    if (bodySize < (high - low) * 0.3 && upperShadow < bodySize * 0.1 && lowerShadow > bodySize * 2)
+        return true;
+    
+    return false;
+}
+
+// Define the function for checking if a candlestick is a Shooting Star pattern
+bool IsShootingStar(double open, double high, double low, double close)
+{
+    double bodySize = MathAbs(open - close);
+    double upperShadow = high - MathMax(open, close);
+    double lowerShadow = MathMin(open, close) - low;
+    
+    // Check if the candlestick is a Shooting Star pattern
+    if (bodySize < (high - low) * 0.3 && lowerShadow < bodySize * 0.1 && upperShadow > bodySize * 2)
+        return true;
+    
+    return false;
+}
+
+// Define the function for sending alerts
+void SendAlert(string pattern)
+{
+    // Send an alert to the trader
+    Alert('Candlestick pattern detected: ', pattern);
+}
+
+// Define the function for setting custom alerts
+void SetCustomAlert(string pattern)
+{
+    // Set a custom alert for the specified pattern
+    if (Pattern1 == pattern)
+        SendAlert(pattern);
+    else if (Pattern2 == pattern)
+        SendAlert(pattern);
+    else if (Pattern3 == pattern)
+        SendAlert(pattern);
+    else if (Pattern4 == pattern)
+        SendAlert(pattern);
+}
+
+// Define the main function for scanning the market and sending alerts
+void OnTick()
+{
+    // Check for the Doji pattern
+    if (DetectPattern(1, PERIOD_CURRENT))
+        SendAlert('Doji pattern detected');
+    
+    // Check for the Engulfing pattern
+    if (DetectPattern(2, PERIOD_CURRENT))
+        SendAlert('Engulfing pattern detected');
+    
+    // Check for the Hammer pattern
+    if (DetectPattern(3, PERIOD_CURRENT))
+        SendAlert('Hammer pattern detected');
+    
+    // Check for the Shooting Star pattern
+    if (DetectPattern(4, PERIOD_CURRENT))
+        SendAlert('Shooting Star pattern detected');
+    
+    // Set custom alerts for specific patterns
+    SetCustomAlert('Doji');
+    SetCustomAlert('Engulfing');
+    SetCustomAlert('Hammer');
+    SetCustomAlert('Shooting Star');
+}
